@@ -9,6 +9,12 @@ module "Jenkins" {
   user_data              = file("jenkins.sh")
   create_security_group  = false
 
+  root_block_device = {
+    delete_on_termination = true
+    size                  = 50
+    type                  = "gp3"
+  }
+
   tags = {
     Name = "jenkins"
   }
@@ -26,7 +32,45 @@ module "jenkins_agent" {
   user_data              = file("jenkins_agent.sh")
   create_security_group  = false
 
+  root_block_device = {
+    delete_on_termination = true
+    size                  = 50
+    type                  = "gp3"
+  }
+
   tags = {
     Name = "jenkins_agent"
   }
+}
+
+
+
+
+module "records" {
+  source  = "terraform-aws-modules/route53/aws//modules/records"
+  version = "~> 2.0"
+
+  zone_name = var.zone_name
+
+  records = [
+    {
+      name    = "jenkins"
+      type    = "A"
+      ttl     = 1
+      records = [
+        module.Jenkins.public_ip
+      ]
+      allow_overwrite = true
+    },
+    {
+      name    = "jenkins_agent"
+      type    = "A"
+      ttl     = 1
+      records = [
+        module.jenkins_agent.private_ip
+      ]
+      allow_overwrite = true
+    }
+  ]
+
 }

@@ -7,3 +7,8 @@ variable "public_subnet_id" {
     type = string
     default = "subnet-022ddaab78843a538"
 }
+
+variable "zone_name" {
+    type = string
+    default = "ram4india.space"
+}
