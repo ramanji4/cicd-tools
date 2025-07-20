@@ -26,7 +26,7 @@ module "jenkins_agent" {
   name = "Jenkins_agent"
   ami = data.aws_ami.DevOps-Practice.id
 
-  instance_type          = "t3.micro"
+  instance_type          = "t3.small"
   vpc_security_group_ids = [var.sg_id]
   subnet_id              = var.public_subnet_id
   user_data              = file("jenkins_agent.sh")
