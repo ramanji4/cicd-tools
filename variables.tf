@@ -12,3 +12,8 @@ variable "zone_name" {
     type = string
     default = "ram4india.space"
 }
+
+variable "sonar_ami_id" {
+    type = string
+    default = "ami-006aa89e8a2fd32d7"
+}

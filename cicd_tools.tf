@@ -44,6 +44,34 @@ module "jenkins_agent" {
 }
 
 
+resource "aws_key_pair" "tools" {
+  key_name   = "tools"
+  public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICXKFk/H9Q2cFbTaTQWiidoUdrH0QtLgQbpoBJKnWiGR ram83@Ramanjaneyulu"
+}
+
+module "SonarQube" {
+  source  = "terraform-aws-modules/ec2-instance/aws"
+  name = "SonarQube"
+  ami = var.sonar_ami_id
+  key_name = aws_key_pair.tools.key_name
+
+  instance_type          = "t3.medium"
+  vpc_security_group_ids = [var.sg_id]
+  subnet_id              = var.public_subnet_id
+  create_security_group  = false
+
+  root_block_device = {
+    delete_on_termination = true
+    size                  = 30
+    type                  = "gp3"
+  }
+
+  tags = {
+    Name = "sonarqube"
+  }
+}
+
+
 
 
 module "records" {
@@ -68,6 +96,24 @@ module "records" {
       ttl     = 1
       records = [
         module.jenkins_agent.private_ip
+      ]
+      allow_overwrite = true
+    },
+    {
+      name    = "sonar-public"
+      type    = "A"
+      ttl     = 1
+      records = [
+        module.SonarQube.public_ip
+      ]
+      allow_overwrite = true
+    },
+    {
+      name    = "sonar-private"
+      type    = "A"
+      ttl     = 1
+      records = [
+        module.SonarQube.private_ip
       ]
       allow_overwrite = true
     }
